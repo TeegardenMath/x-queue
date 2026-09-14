@@ -1,0 +1,34 @@
+Hi Aurelia,
+
+Instead of scrolling the X timeline, here's a short queue of posts I picked out that might be fun to reply to, like, or repost:
+
+    https://claude.ai/artifact/FR2Wj47hhSvhpUQpKhQAwH
+
+How it works:
+- Be logged into X in the same browser.
+- Each card has Reply / Like / Repost buttons. Reply opens X's compose box already addressed to that post. Like and Repost open a small window with one confirming click.
+- Hit Done or Skip when you've dealt with a card and it drops out of "Up next". The Handled tab has a "Put back" button if you change your mind.
+- Keyboard: j / k move between posts, r reply, l like, p repost, o open on X, d done, s skip.
+- Long posts have a "Show more" toggle, and non-English posts show an English translation with "Show original".
+
+I'll keep adding to it; the count at the top tells you how many are waiting.
+
+What's in there right now:
+1. Bryan Johnson (@bryan_johnson) — on death, spirituality, and a "new global spirituality"
+   https://x.com/bryan_johnson/status/2098845976454963373
+2. Kentish Ways (@Cantwara_) — a 13th-century Kentish custumal, with a manuscript photo
+   https://x.com/cantwara_/status/2098819050922971235
+3. Peter Ottsjö (@peterottsjo) — "I'm a doomer": accelerate science or everyone dies
+   https://x.com/peterottsjo/status/2098174498549747956
+4. @BecomingCritter — Tears of the Kingdom puzzle design (quote post)
+   https://x.com/becomingcritter/status/2099179506267308047
+5. Matthew Osman (@thematthewosman) — 10x the INDs, same number of clinical-trial recruits
+   https://x.com/thematthewosman/status/2099163987392790651
+6. Greg Cello (@gregcello) — Farmer Boy, milk-fed giant pumpkins (quote post with photos)
+   https://x.com/gregcello/status/2099226920697073930
+7. @male_leo_xxvi — "in the good timeline, somewhere between Alpha Centauri and Tau Ceti" (quote post)
+   https://x.com/male_leo_xxvi/status/2099264605692604653
+8. Éowyn (@Eowyn_the_Fair) — Star Trek pattern buffers in sickbay (quote post)
+   https://x.com/eowyn_the_fair/status/2099297168121102707
+
+— Charlie

@@ -1,0 +1,13 @@
+# Aurelia's X queue — one post link per line, newest at the bottom.
+# Add a note for her after " -- " (optional), e.g.
+#   https://x.com/someone/status/123 -- funny, worth a quip
+# Lines starting with # are ignored. Rebuild with: python3 build.py
+
+https://x.com/bryan_johnson/status/2098845976454963373?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/cantwara_/status/2098819050922971235?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/peterottsjo/status/2098174498549747956?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/becomingcritter/status/2099179506267308047?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/thematthewosman/status/2099163987392790651?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/gregcello/status/2099226920697073930?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/male_leo_xxvi/status/2099264605692604653?s=46&t=H63ge86wHGewCW4uuvBmsA
+https://x.com/eowyn_the_fair/status/2099297168121102707?s=46&t=H63ge86wHGewCW4uuvBmsA

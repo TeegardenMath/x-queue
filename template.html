@@ -1,0 +1,369 @@
+<title>Aurelia's X Queue</title>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #EDE4D3;
+    --surface: #FAF8F4;
+    --surface-2: #F3EDE1;
+    --ink: #2C3E3A;
+    --muted: #6B6A63;
+    --line: #D4C4A8;
+    --line-soft: #E3D8C2;
+    --teal: #5A8B7E;
+    --teal-ink: #FAF8F4;
+    --coral: #D85D4C;
+    --coral-ink: #FAF8F4;
+    --sand-deep: #B8A78A;
+    --focus: #5A8B7E;
+    --shadow: 0 1px 2px rgba(44,62,58,.08), 0 6px 18px -8px rgba(44,62,58,.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #1B2725; --surface: #2C3E3A; --surface-2: #26362F; --ink: #E8DCC8; --muted: #A8A393;
+      --line: #46605A; --line-soft: #3A4F4A; --teal: #7FB3A4; --teal-ink: #1B2725; --coral: #E5806F;
+      --coral-ink: #1B2725; --sand-deep: #B8A78A; --focus: #7FB3A4;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px -8px rgba(0,0,0,.45); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #1B2725; --surface: #2C3E3A; --surface-2: #26362F; --ink: #E8DCC8; --muted: #A8A393;
+    --line: #46605A; --line-soft: #3A4F4A; --teal: #7FB3A4; --teal-ink: #1B2725; --coral: #E5806F;
+    --coral-ink: #1B2725; --sand-deep: #B8A78A; --focus: #7FB3A4;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px -8px rgba(0,0,0,.45); color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--teal); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 16px 80px; }
+
+  /* Masthead */
+  .mast {
+    position: sticky; top: 0; z-index: 5; background: var(--ground);
+    padding: 22px 0 12px; border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px;
+  }
+  .brand { font-family: "Newsreader", Georgia, serif; font-size: 26px; line-height: 1; letter-spacing: -.01em; }
+  .brand b { font-weight: 600; }
+  .brand span { font-weight: 400; font-style: italic; color: var(--muted); }
+  .count { color: var(--muted); font-size: 13px; }
+  .count strong { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tabs { margin-left: auto; display: flex; gap: 2px; background: var(--surface-2); border: 1px solid var(--line-soft); border-radius: 999px; padding: 2px; }
+  .tabs button {
+    border: 0; background: transparent; border-radius: 999px; padding: 5px 12px; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--muted);
+  }
+  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(44,62,58,.12); }
+  .tabs button span { font-variant-numeric: tabular-nums; opacity: .7; margin-left: 4px; }
+
+  /* Feed */
+  .feed { display: flex; flex-direction: column; gap: 18px; padding-top: 22px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line-soft); border-radius: 6px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .card:focus-within, .card.is-current { border-color: var(--teal); }
+  .note {
+    display: flex; gap: 10px; align-items: baseline;
+    padding: 10px 20px; background: var(--surface-2); border-bottom: 1px solid var(--line-soft);
+    font-family: "Newsreader", Georgia, serif; font-style: italic; font-size: 16px; line-height: 1.4;
+  }
+  .note .who { font-family: "IBM Plex Sans", sans-serif; font-style: normal; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--sand-deep); white-space: nowrap; }
+  .post { padding: 18px 20px 14px; }
+  .byline { display: grid; grid-template-columns: 42px 1fr auto; column-gap: 12px; align-items: center; margin-bottom: 12px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--line-soft); object-fit: cover; }
+  .avatar.blank { display: grid; place-items: center; font-family: "Newsreader", Georgia, serif; font-weight: 600; color: var(--muted); }
+  .name { font-weight: 600; line-height: 1.2; }
+  .handle { color: var(--muted); font-size: 13px; }
+  .date { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .text { font-family: "Newsreader", Georgia, serif; font-size: 19px; line-height: 1.45; margin: 0; overflow-wrap: anywhere; }
+  .text a { color: var(--teal); }
+  .more { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+  .textwrap { position: relative; }
+  .textwrap.clamp .text { max-height: 13.5em; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent); mask-image: linear-gradient(to bottom, #000 70%, transparent); }
+  .textwrap.clamp .text-orig, .textwrap.clamp .text-trans { max-height: 13.5em; }
+  .textbtn { margin-top: 8px; border: 0; background: none; padding: 0; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--teal); }
+  .textbtn:hover { text-decoration: underline; }
+  .trans { margin-top: 8px; font-size: 13px; color: var(--muted); display: flex; gap: 6px; align-items: baseline; }
+  .trans .textbtn { margin: 0; }
+  .text[hidden] { display: none; }
+  .photos { display: grid; gap: 4px; margin-top: 12px; border-radius: 6px; overflow: hidden; }
+  .photos.n2, .photos.n4 { grid-template-columns: 1fr 1fr; }
+  .photos.n3 { grid-template-columns: 1fr 1fr; }
+  .photos.n3 img:first-child { grid-row: span 2; }
+  .photos img { width: 100%; height: 100%; max-height: 420px; object-fit: cover; display: block; background: var(--line-soft); }
+  .video { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .clip { margin-top: 12px; border-radius: 6px; overflow: hidden; background: #000; }
+  .clip video { display: block; width: 100%; max-height: 520px; }
+  .clip + .clip { margin-top: 6px; }
+  .quote { margin: 12px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); }
+  .quote .byline { grid-template-columns: 24px 1fr auto; margin-bottom: 6px; }
+  .quote .avatar { width: 24px; height: 24px; }
+  .quote .name { font-size: 14px; }
+  .quote .text { font-size: 16px; }
+  .quote .photos img { max-height: 260px; }
+  .stats { margin-top: 12px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; display: flex; gap: 14px; }
+
+  /* Actions */
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 20px 16px; border-top: 1px solid var(--line-soft); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 7px 12px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500; line-height: 1; text-decoration: none; color: var(--ink);
+  }
+  .btn:hover { text-decoration: none; border-color: var(--teal); color: var(--teal); }
+  .btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .btn.reply { background: var(--coral); border-color: var(--coral); color: var(--coral-ink); }
+  .btn.reply:hover { filter: brightness(.94); color: var(--coral-ink); }
+  .btn.open { border-color: transparent; color: var(--muted); padding-left: 6px; padding-right: 8px; }
+  .btn.open:hover { color: var(--teal); }
+  .spacer { flex: 1; }
+  .fallback { flex-basis: 100%; display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-top: 4px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 6px; font-size: 13px; color: var(--muted); }
+  .fallback p { grid-column: 1 / -1; margin: 0; }
+  .fallback input { min-width: 0; font: inherit; font-size: 12px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface-2); color: var(--ink); }
+  .fallback .btn { padding: 6px 10px; font-size: 13px; }
+  .btn.done { border-color: var(--teal); color: var(--teal); }
+  .btn.done:hover { background: var(--teal); color: var(--teal-ink); }
+  .btn.skip, .btn.undo { border-color: transparent; color: var(--muted); }
+  .btn.skip:hover, .btn.undo:hover { color: var(--ink); border-color: var(--line); }
+
+  /* Handled rows */
+  .card.handled .post, .card.handled .note, .card.handled .actions { display: none; }
+  .card.handled .row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 10px 16px 10px 20px; font-size: 14px; }
+  .card:not(.handled) .row { display: none; }
+  .row .mark { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .row .mark.done { color: var(--teal); }
+  .row .mark.skipped { color: var(--muted); }
+  .row .sum { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .sum b { color: var(--ink); font-weight: 600; }
+
+  .empty { text-align: center; padding: 56px 20px; color: var(--muted); font-family: "Newsreader", Georgia, serif; font-size: 20px; font-style: italic; }
+  .foot { margin-top: 36px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .foot kbd { font-family: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; font-size: 11px; }
+  .missing .text { color: var(--muted); font-style: italic; }
+
+  @media (max-width: 480px) {
+    .post, .actions { padding-left: 14px; padding-right: 14px; }
+    .note { padding-left: 14px; padding-right: 14px; }
+    .text { font-size: 18px; }
+    .tabs { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card { transition: border-color .15s; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="brand"><b>Nectome</b> <span>· Aurelia's queue</span></div>
+    <div class="count" id="count"></div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="todo">Up next<span id="n-todo"></span></button>
+      <button role="tab" data-tab="handled">Handled<span id="n-handled"></span></button>
+      <button role="tab" data-tab="all">Everything</button>
+    </div>
+  </header>
+  <main class="feed" id="feed"></main>
+  <p class="foot">Each button opens X in a small window; Like and Repost take one confirming click there, Reply opens the compose box already addressed. Mark a post <b>Done</b> or <b>Skip</b> to clear it from the queue. Keys: <kbd>j</kbd>/<kbd>k</kbd> move, <kbd>r</kbd> reply, <kbd>l</kbd> like, <kbd>p</kbd> repost, <kbd>o</kbd> open, <kbd>d</kbd> done, <kbd>s</kbd> skip.</p>
+</div>
+
+<script>
+(() => {
+  const DATA = /*__QUEUE_DATA__*/;
+  const posts = DATA.posts;
+  const feed = document.getElementById("feed");
+  const ICON = {
+    reply: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.6-4.3A8 8 0 1 1 21 12z"/></svg>',
+    like: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>',
+    repost: '<svg viewBox="0 0 24 24"><path d="M4 9V7a2 2 0 0 1 2-2h11M17 5l-3-3M17 5l-3 3M20 15v2a2 2 0 0 1-2 2H7M7 19l3 3M7 19l3-3"/></svg>',
+    open: '<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+    check: '<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>',
+  };
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const num = n => n == null ? "" : n >= 1e6 ? (n/1e6).toFixed(1)+"M" : n >= 1e4 ? Math.round(n/1e3)+"K" : n >= 1e3 ? (n/1e3).toFixed(1)+"K" : String(n);
+
+  // ---- state: shared db when available, this browser otherwise ----
+  let status = {};            // id -> {state:"done"|"skipped", at}
+  let db = null;
+  const LS = "xqueue-status";
+  try { status = JSON.parse(localStorage.getItem(LS) || "{}"); } catch (e) {}
+  function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(status)); } catch (e) {} }
+  async function setStatus(id, state) {
+    if (state) status[id] = { state, at: new Date().toISOString() }; else delete status[id];
+    saveLocal(); render();
+    if (!db) return;
+    try {
+      const ref = db.collection("status").doc(id);
+      if (state) await ref.set(status[id]); else await ref.delete();
+    } catch (e) { console.warn("status write failed", e); }
+  }
+  (async () => {
+    if (!window.claude || !claude.use) return;
+    db = await claude.use("db");
+    if (!db) return;
+    db.collection("status").onSnapshot(snap => {
+      const next = {};
+      snap.docs.forEach(d => { if (d.exists) next[d.id] = d.data(); });
+      status = next; saveLocal(); render();
+    }, err => { console.warn("status subscription ended", err); });
+  })();
+
+  // ---- tabs ----
+  let tab = "todo";
+  try { tab = localStorage.getItem("xqueue-tab") || "todo"; } catch (e) {}
+  const tabs = document.getElementById("tabs");
+  tabs.addEventListener("click", e => {
+    const b = e.target.closest("button[data-tab]"); if (!b) return;
+    tab = b.dataset.tab; try { localStorage.setItem("xqueue-tab", tab); } catch (e) {} render();
+  });
+
+  // ---- intents ----
+  const intent = {
+    reply: id => `https://x.com/intent/post?in_reply_to=${id}`,
+    like: id => `https://x.com/intent/like?tweet_id=${id}`,
+    repost: id => `https://x.com/intent/retweet?tweet_id=${id}`,
+  };
+  function popup(url) {
+    const w = 600, h = 640, x = Math.max(0, (screen.width - w) / 2), y = Math.max(0, (screen.height - h) / 3);
+    let win = null;
+    try { win = window.open(url, "x_intent", `width=${w},height=${h},left=${x},top=${y},scrollbars=yes,resizable=yes`); } catch (e) { console.warn("window.open threw", e); }
+    return !!win;
+  }
+  // If neither the popup nor the link's own new tab opened, this page keeps focus:
+  // show the link so it can be opened by hand.
+  function watchForBlocked(card, url, label) {
+    setTimeout(() => {
+      if (!document.hasFocus() || document.hidden) return;
+      let fb = card.querySelector(".fallback");
+      if (!fb) { fb = document.createElement("div"); fb.className = "fallback"; card.querySelector(".actions").appendChild(fb); }
+      fb.innerHTML = `<p>Nothing opened, so this viewer is blocking new windows. Right-click <b>${esc(label)}</b> and choose “Open Link in New Tab”, or copy the link:</p>
+        <input type="text" readonly value="${esc(url)}"><button class="btn" data-act="copy">Copy</button><button class="btn skip" data-act="dismiss">Hide</button>`;
+      console.warn("x-queue: new window blocked", { framed: window.self !== window.top, url });
+    }, 700);
+  }
+
+  // ---- render ----
+  function bylineHTML(p, big) {
+    const av = p.avatar ? `<img class="avatar" src="${p.avatar}" alt="">` : `<div class="avatar blank">${esc((p.name||p.handle||"?")[0])}</div>`;
+    return `<div class="byline">${av}<div><div class="name">${esc(p.name || "@" + p.handle)}</div><div class="handle">@${esc(p.handle)}</div></div><div class="date">${esc(p.date)}</div></div>`;
+  }
+  function photosHTML(p) {
+    if (p.photos && p.photos.length) return `<div class="photos n${Math.min(p.photos.length,4)}">${p.photos.slice(0,4).map(s => `<img src="${s}" alt="" loading="lazy">`).join("")}</div>`;
+    let out = "";
+    for (const v of p.videos || []) {
+      const attrs = v.gif ? "autoplay muted loop playsinline" : "controls preload=\"metadata\" playsinline";
+      out += `<div class="clip"><video ${attrs} poster="${v.poster}" style="aspect-ratio:${v.w}/${v.h}" src="${esc(v.src)}"></video></div>`;
+    }
+    if (p.video_on_x) out += `<div class="video">Video attached, plays on X.</div>`;
+    return out;
+  }
+  const LONG = 700; // characters of visible text before a post collapses
+  function textHTML(p, cls) {
+    const plain = (p.html || "").replace(/<[^>]+>/g, "");
+    const long = plain.length > LONG;
+    const tr = p.translation;
+    const body = tr
+      ? `<p class="text text-trans">${tr.html}</p><p class="text text-orig" hidden>${p.html}</p>`
+      : `<p class="text">${p.html}</p>`;
+    const transLine = tr ? `<div class="trans"><span>Translated from ${esc(tr.from)}</span>·<button class="textbtn" data-act="orig">Show original</button></div>` : "";
+    const moreBtn = long ? `<button class="textbtn" data-act="more">Show more</button>` : "";
+    return `<div class="textwrap ${long ? "clamp" : ""}">${body}${moreBtn}${transLine}</div>`;
+  }
+  function postHTML(p) {
+    if (p.missing) return `<div class="post missing">${bylineHTML(p)}<p class="text">Couldn't fetch this post. It may be deleted or protected. <a href="${esc(p.url)}" target="_blank" rel="noopener">Open it on X</a>.</p></div>`;
+    const q = p.quoted ? `<blockquote class="quote">${bylineHTML(p.quoted)}${textHTML(p.quoted)}${photosHTML(p.quoted)}</blockquote>` : "";
+    const more = p.truncated ? `<p class="more">Couldn't fetch the rest of this long post. It's shown in full on X.</p>` : "";
+    const stats = (p.likes != null || p.replies != null) ? `<div class="stats">${p.likes != null ? `<span>${num(p.likes)} likes</span>` : ""}${p.replies != null ? `<span>${num(p.replies)} replies</span>` : ""}</div>` : "";
+    return `<div class="post">${bylineHTML(p, true)}${textHTML(p)}${more}${photosHTML(p)}${q}${stats}</div>`;
+  }
+  function cardHTML(p) {
+    const st = status[p.id];
+    const note = p.note ? `<div class="note"><span class="who">Charlie</span><span>${esc(p.note)}</span></div>` : "";
+    const summary = p.missing ? "post unavailable" : (p.html || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").slice(0, 90);
+    return `<article class="card ${st ? "handled" : ""}" data-id="${p.id}" tabindex="-1">
+      ${note}${postHTML(p)}
+      <div class="actions">
+        <a class="btn reply" data-act="reply" href="${intent.reply(p.id)}" target="_blank" rel="noopener">${ICON.reply}Reply</a>
+        <a class="btn" data-act="like" href="${intent.like(p.id)}" target="_blank" rel="noopener">${ICON.like}Like</a>
+        <a class="btn" data-act="repost" href="${intent.repost(p.id)}" target="_blank" rel="noopener">${ICON.repost}Repost</a>
+        <a class="btn open" data-act="open" href="${esc(p.url)}" target="_blank" rel="noopener">${ICON.open}Open</a>
+        <span class="spacer"></span>
+        <button class="btn done" data-act="done">${ICON.check}Done</button>
+        <button class="btn skip" data-act="skip">Skip</button>
+      </div>
+      <div class="row">
+        <span class="mark ${st ? st.state : ""}">${st ? st.state : ""}</span>
+        <span class="sum"><b>@${esc(p.handle)}</b> ${esc(summary)}</span>
+        <button class="btn undo" data-act="undo">Put back</button>
+      </div>
+    </article>`;
+  }
+  function render() {
+    const todo = posts.filter(p => !status[p.id]);
+    const handled = posts.filter(p => status[p.id]);
+    const list = tab === "todo" ? todo : tab === "handled" ? handled : posts;
+    document.getElementById("n-todo").textContent = todo.length || "";
+    document.getElementById("n-handled").textContent = handled.length || "";
+    document.getElementById("count").innerHTML = `<strong>${todo.length}</strong> to look at · list updated ${esc(DATA.built)}`;
+    tabs.querySelectorAll("button").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+    const cur = feed.querySelector(".is-current")?.dataset.id;
+    feed.innerHTML = list.length ? list.map(cardHTML).join("") :
+      `<div class="empty">${tab === "todo" ? "You're through the queue. Charlie will add more." : "Nothing here yet."}</div>`;
+    if (cur) feed.querySelector(`[data-id="${cur}"]`)?.classList.add("is-current");
+  }
+
+  feed.addEventListener("click", e => {
+    const el = e.target.closest("[data-act]"); if (!el) return;
+    const id = el.closest(".card").dataset.id, act = el.dataset.act;
+    if (act === "more") {
+      const w = el.closest(".textwrap"); const open = w.classList.toggle("clamp");
+      el.textContent = open ? "Show more" : "Show less"; return;
+    }
+    if (act === "orig") {
+      const w = el.closest(".textwrap"); const o = w.querySelector(".text-orig"), t = w.querySelector(".text-trans");
+      const showOrig = o.hidden; o.hidden = !showOrig; t.hidden = showOrig;
+      el.textContent = showOrig ? "Show translation" : "Show original"; return;
+    }
+    setCurrent(el.closest(".card"));
+    if (act === "done" || act === "skip") return setStatus(id, act === "done" ? "done" : "skipped");
+    if (act === "undo") return setStatus(id, null);
+    if (act === "copy") { const inp = el.parentNode.querySelector("input"); inp.select(); try { navigator.clipboard.writeText(inp.value).then(() => el.textContent = "Copied"); } catch (err) { document.execCommand("copy"); el.textContent = "Copied"; } return; }
+    if (act === "dismiss") { el.closest(".fallback").remove(); return; }
+    if (act === "reply" || act === "like" || act === "repost") {
+      const card = el.closest(".card");
+      if (popup(el.href)) e.preventDefault();          // popup opened; skip the link's own new tab
+      watchForBlocked(card, el.href, el.textContent.trim());
+    }
+    if (act === "open") watchForBlocked(el.closest(".card"), el.href, "Open");
+  });
+
+  // ---- keyboard ----
+  function setCurrent(card) { feed.querySelectorAll(".is-current").forEach(c => c.classList.remove("is-current")); if (card) card.classList.add("is-current"); }
+  document.addEventListener("keydown", e => {
+    if (e.metaKey || e.ctrlKey || e.altKey || /input|textarea/i.test(e.target.tagName)) return;
+    const cards = [...feed.querySelectorAll(".card:not(.handled)")];
+    if (!cards.length) return;
+    let i = cards.findIndex(c => c.classList.contains("is-current"));
+    const k = e.key.toLowerCase();
+    if (k === "j" || k === "k") {
+      i = k === "j" ? Math.min(i + 1, cards.length - 1) : Math.max(i - 1, 0);
+      setCurrent(cards[i]); cards[i].scrollIntoView({ block: "center", behavior: "smooth" }); e.preventDefault(); return;
+    }
+    const card = cards[i] || cards[0];
+    const map = { r: "reply", l: "like", p: "repost", o: "open", d: "done", s: "skip" };
+    if (map[k]) { setCurrent(card); card.querySelector(`[data-act="${map[k]}"]`)?.click(); e.preventDefault(); }
+  });
+
+  render();
+})();
+</script>
