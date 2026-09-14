@@ -2,12 +2,12 @@ Hi Aurelia,
 
 Instead of scrolling the X timeline, here's a short queue of posts I picked out that might be fun to reply to, like, or repost:
 
-    https://claude.ai/artifact/FR2Wj47hhSvhpUQpKhQAwH
+    https://teegardenmath.github.io/x-queue/
 
 How it works:
 - Be logged into X in the same browser.
 - Each card has Reply / Like / Repost buttons. Reply opens X's compose box already addressed to that post. Like and Repost open a small window with one confirming click.
-- Hit Done or Skip when you've dealt with a card and it drops out of "Up next". The Handled tab has a "Put back" button if you change your mind.
+- Hit Done or Skip when you've dealt with a card and it drops out of "Up next". The Handled tab has a "Put back" button if you change your mind. (That list is remembered by your browser, so stick to one browser if you can.)
 - Keyboard: j / k move between posts, r reply, l like, p repost, o open on X, d done, s skip.
 - Long posts have a "Show more" toggle, and non-English posts show an English translation with "Show original".
 
