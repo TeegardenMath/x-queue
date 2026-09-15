@@ -1,4 +1,4 @@
-# Aurelia's X queue — one post link per line, in any order (the page sorts newest first).
+# Aurelia's X queue — one post link per line, newest additions at the bottom (the page shows them at the top).
 # Add a note for her after " -- " (optional), e.g.
 #   https://x.com/someone/status/123 -- funny, worth a quip
 # Lines starting with # are ignored. Rebuild with: python3 build.py

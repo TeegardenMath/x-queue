@@ -233,7 +233,7 @@ def main():
         if t.get("quoted_tweet"):
             p["quoted"] = build_post(t["quoted_tweet"])
         posts.append(p)
-    posts.sort(key=lambda p: p.get("ts", ""), reverse=True)   # newest first, like a timeline; unfetchable posts last
+    posts.reverse()   # links.txt is oldest-first; show the most recently added at the top
     built = datetime.now().strftime("%-d %b %Y")
     payload = json.dumps({"built": built, "posts": posts}, ensure_ascii=False).replace("</", "<\\/")
     page = open(TEMPLATE, encoding="utf-8").read().replace("/*__QUEUE_DATA__*/", payload)
