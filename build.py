@@ -211,7 +211,7 @@ def build_post(t):
     return {
         "id": t["id_str"], "name": u.get("name", ""), "handle": u.get("screen_name", ""),
         "avatar": data_uri(u["profile_image_url_https"], small=False) if u.get("profile_image_url_https") else "",
-        "date": fmt_date(t.get("created_at")), "html": render_text(t),
+        "date": fmt_date(t.get("created_at")), "ts": t.get("created_at") or "", "html": render_text(t),
         "truncated": truncated, "translation": translation, "lang": lang, "photos": [p for p in photos if p],
         "videos": [v for v in videos if v], "video_on_x": any(v is None for v in videos), "likes": t.get("favorite_count"),
         "replies": t.get("conversation_count", t.get("reply_count")),
@@ -233,6 +233,7 @@ def main():
         if t.get("quoted_tweet"):
             p["quoted"] = build_post(t["quoted_tweet"])
         posts.append(p)
+    posts.sort(key=lambda p: p.get("ts", ""), reverse=True)   # newest first, like a timeline; unfetchable posts last
     built = datetime.now().strftime("%-d %b %Y")
     payload = json.dumps({"built": built, "posts": posts}, ensure_ascii=False).replace("</", "<\\/")
     page = open(TEMPLATE, encoding="utf-8").read().replace("/*__QUEUE_DATA__*/", payload)
